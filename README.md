@@ -115,4 +115,5 @@ kubectl apply -f ./c3_service/302-ingress-layer.yml
 🧹 Clean Up
 ```shell
 kubectl delete -f c3_service/
+minikube stop
 ```
