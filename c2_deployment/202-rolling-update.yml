@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels:
+    app: api-server
+spec:
+  replicas: 3
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: api-server
+  template:
+    metadata:
+      labels:
+        app: api-server
+    spec:
+      containers:
+        - name: api
+          image: k8s-ws-api
+          #image: k8s-ws-api:v2
+          imagePullPolicy: Never
+          # Delay the readiness
+          readinessProbe:
+            exec:
+              command: ["echo", "true"]
+            initialDelaySeconds: 5
+            periodSeconds: 5

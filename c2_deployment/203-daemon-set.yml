@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-monitor-ds
+  labels:
+    app: node-monitor
+spec:
+  selector:
+    matchLabels:
+      app: node-monitor
+  template:
+    metadata:
+      labels:
+        app: node-monitor
+    spec:
+#      tolerations:
+#        - key: node-role.kubernetes.io/control-plane
+#          operator: Exists
+#          effect: NoSchedule
+      containers:
+        - name: monitor-agent
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - >
+              echo "Installing Monitor Agent on Node: $MY_NODE_NAME";
+              while true; do
+                echo "[$(date)] Monitoring Node: $MY_NODE_NAME | Files in /var/log: $(ls /host-logs | wc -l)";
+                sleep 10;
+              done
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: host-log-volume
+              mountPath: /host-logs
+              readOnly: true
+
+      volumes:
+        - name: host-log-volume
+          hostPath:
+            path: /var/log
+            type: Directory
